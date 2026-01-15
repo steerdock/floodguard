@@ -18,7 +18,7 @@ A modern, lightweight Linux firewall tool for defending against CC and DDoS atta
 
 ```bash
 # Download binary
-wget https://github.com/steerdock/floodguard/releases/latest/download/floodguard-linux-amd64
+wget https://github.com/steerdock/floodguard/releases/latest/download/floodguard-linux-amd64-1.0
 chmod +x floodguard-linux-amd64
 sudo mv floodguard-linux-amd64 /usr/local/bin/floodguard
 
