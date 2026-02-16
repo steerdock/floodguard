@@ -1,0 +1,42 @@
+# FloodGuard 配置文件 / FloodGuard Configuration File
+
+# 监控配置 / Monitor Configuration
+monitor:
+  interval: 10s             # 检测间隔 / Check interval
+  max_connections: 100      # 单 IP 最大连接数阈值 / Max connections per IP
+  max_qps: 50               # 单 IP 最大 QPS（每秒请求数） / Max QPS per IP
+  ports:                    # 监控的端口 / Ports to monitor
+    - 80
+    - 443
+    - 8080
+  check_http: true          # 是否检查 HTTP 请求 / Enable HTTP request checking
+
+# 封禁策略 / Ban Policy
+ban:
+  duration: 3600            # 封禁时长（秒），0 表示永久封禁 / Ban duration (seconds), 0 for permanent
+  mode: "auto"              # 防火墙模式 / Firewall mode: auto/iptables/nftables/firewalld
+
+# IP 白名单（不会被封禁） / IP Whitelist (will not be banned)
+# 安装时会自动添加服务器的公网 IP 和本地网络 IP / Server's public and local IPs are auto-added during installation
+whitelist:
+  - "127.0.0.1"
+  - "::1"
+  - "192.168.0.0/16"        # 支持 CIDR 格式 / CIDR format supported
+  - "10.0.0.0/8"
+
+# IP 黑名单（直接封禁） / IP Blacklist (banned immediately)
+blacklist:
+  - "1.2.3.4"
+  # - "5.6.7.0/24"
+
+# 通知配置 / Notification Configuration
+notification:
+  enabled: false            # 是否启用通知 / Enable notifications
+  webhook_url: ""           # Webhook URL
+  type: "dingtalk"          # 通知类型 / Notification type: dingtalk/slack/wecom
+
+# 日志配置 / Log Configuration
+log:
+  level: "info"             # 日志级别 / Log level: debug/info/warn/error
+  file: "/var/log/floodguard/floodguard.log"
+  format: "json"            # 日志格式 / Log format: json/text
