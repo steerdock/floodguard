@@ -1,51 +1,30 @@
-name: Sync to Multiple Git Mirrors
+name: Sync To Gitee
 
-# 触发条件：当推送到 master 分支，或创建/删除分支/标签时
-on: 
-  push:
-    branches:
-      - master
-  delete:
-  create:
+on: # 这里是github action的触发条件
+    schedule:
+    - cron: '0 */6 * * *' # 每 6 小时同步一次
+    push:
+    workflow_dispatch: # 允许手动触发
+    delete:
+    create:
 
 jobs:
-  # Job 1: 同步到 Gitee
-  sync_to_gitee:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    build:
+        runs-on: ubuntu-latest
+        steps:
 
-      - name: Mirror to Gitee
-        uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: "git@gitee.com:opcnlin/floodguard.git"
-          ssh_private_key: "${{ secrets.GITEE_SSH_PRIVATE_KEY }}"
+            - name: Sync to Gitee
+              uses: wearerequired/git-mirror-action@master
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SYNC_RSA_PRIVATE_KEY }}
+              with:
+                  source-repo: git@github.com:silvancoder/floodguard.git
+                  destination-repo: git@gitee.com:opcnlin/floodguard.git
 
-  # Job 2: 同步到 GitLab
-  sync_to_gitlab:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Mirror to GitLab
-        uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: "git@gitlab.com:silvancoder/floodguard.git"
-          ssh_private_key: "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}"
-
-  # Job 3: 同步到 GitHub
-  sync_to_github:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Mirror to GitHub
-        uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: "git@github.com:steerdock/floodguard.git"
-          ssh_private_key: "${{ secrets.HUB_SSH_PRIVATE_KEY }}"
+            - name: Sync to GitLab
+              uses: wearerequired/git-mirror-action@master
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SYNC_RSA_PRIVATE_KEY }}
+              with:
+                  source-repo: git@github.com:silvancoder/floodguard.git
+                  destination-repo: git@gitlab.com:silvancoder/floodguard.git
