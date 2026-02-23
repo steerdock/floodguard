@@ -1,106 +1,116 @@
 # FloodGuard
 
-一个现代化的轻量级 Linux 防火墙工具，用于防御 CC 攻击和 DDoS 攻击。
+[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md)
 
-## 特性
+A modern, lightweight Linux firewall tool for defending against CC and DDoS attacks.
 
-- 🚀 **轻量高效**：Go 语言编写，单二进制文件，资源占用少
-- 🛡️ **智能防护**：多维度检测异常连接，自动封禁攻击 IP
-- 🔧 **灵活配置**：支持 YAML 配置，可自定义各种阈值和策略
-- 📊 **实时监控**：连接数统计、攻击日志、封禁记录
-- 🔔 **通知告警**：支持 Webhook 通知（钉钉、企业微信、Slack）
-- 🌐 **多后端支持**：自动适配 iptables、nftables、firewalld
-- 📝 **详细日志**：结构化日志输出，支持多种格式
+## Features
 
-## 快速开始
+- 🚀 **Lightweight & Fast**: Written in Go, single binary, minimal resource usage
+- 🛡️ **Smart Protection**: Multi-dimensional detection of abnormal connections, automatic IP banning
+- 🔧 **Flexible Configuration**: YAML-based config with customizable thresholds and policies
+- 📊 **Real-time Monitoring**: Connection statistics, attack logs, and ban records
+- 🔔 **Alert Notifications**: Webhook support (DingTalk, WeCom, Slack)
+- 🌐 **Multi-backend Support**: Auto-detects iptables, nftables, firewalld
+- 📝 **Detailed Logging**: Structured log output in multiple formats
 
-### 安装
+## Quick Start
 
-# 使用 Go 安装
+### Installation
+
+```bash
+# Install via Go
 go install github.com/steerdock/floodguard/cmd/floodguard@latest
 ```
 
-**注意**：安装时会自动检测服务器的公网 IP 和本地网络 IP，并添加到白名单，防止误封。
+> **Note**: During `init`, FloodGuard automatically detects your server's public and local IPs and adds them to the whitelist to prevent accidental self-blocking.
 
-### 使用
+### Usage
 
 ```bash
-# 生成默认配置文件
+# Generate default config file
 sudo floodguard init
 
-# 启动防护
+# Start protection
 sudo floodguard start
 
-# 查看状态
+# Check status
 sudo floodguard status
 
-# 查看封禁列表
+# List banned IPs
 sudo floodguard list
 
-# 解封 IP
+# Unban an IP
 sudo floodguard unban 1.2.3.4
 ```
 
-## 配置说明
+## Configuration
 
-配置文件位于 `/etc/floodguard/config.yaml`
+Config file location: `/etc/floodguard/config.yaml`
 
 ```yaml
-# 监控设置
+# Monitor settings
 monitor:
-  interval: 10s              # 检测间隔
-  max_connections: 100       # 单 IP 最大连接数
-  max_qps: 50                # 单 IP 最大 QPS
-  
-# 封禁策略
+  interval: 10s              # Check interval
+  max_connections: 100       # Max connections per IP
+  max_qps: 50                # Max QPS per IP
+
+# Ban policy
 ban:
-  duration: 3600            # 封禁时长（秒），0 为永久
+  duration: 3600            # Ban duration (seconds), 0 for permanent
   mode: "auto"              # auto/iptables/nftables/firewalld
 
-# 白名单
+# Whitelist
 whitelist:
   - "127.0.0.1"
   - "192.168.0.0/16"
-  
-# 通知
+
+# Notifications
 notification:
   enabled: true
   webhook_url: "https://your-webhook-url"
 ```
 
-## 系统要求
+## System Requirements
 
-- Linux 系统（内核 3.10+）
-- root 权限
-- iptables 或 nftables
+- Linux (kernel 3.10+)
+- Root privileges
+- iptables or nftables
 
-## 开发
+## Development
 
 ```bash
-# 克隆项目
+# Clone repository
 git clone https://github.com/steerdock/floodguard.git
 cd floodguard
 
-# 安装依赖
+# Install dependencies
 go mod download
 
-# 编译
-go build -o build/floodguard cmd/floodguard/main.go
+# Build
+make build
 
-# 安装到系统
+# Run tests
+make test
+```
+
+## Deployment (systemd)
+
+```bash
+# Install binary
 sudo cp build/floodguard /usr/local/bin/
 sudo chmod +x /usr/local/bin/floodguard
 
-# 修复 SELinux 上下文（RHEL/CentOS/Fedora 系统必需）
+# Fix SELinux context (RHEL/CentOS/Fedora)
 sudo restorecon -v /usr/local/bin/floodguard
 
-# 初始化配置文件（重要：必须先执行此步骤！）
-sudo /usr/local/bin/floodguard init
+# Initialize configuration (run this first!)
+sudo floodguard init
 
-# 创建 systemd 服务
+# Create systemd service
 sudo tee /etc/systemd/system/floodguard.service > /dev/null <<EOF
 [Unit]
-Description=FloodGuard - DDoS 防护服务
+Description=FloodGuard - DDoS Protection Service
 After=network.target
 
 [Service]
@@ -115,41 +125,21 @@ StandardError=journal
 WantedBy=multi-user.target
 EOF
 
-# 启用并启动服务
+# Enable and start
 sudo systemctl daemon-reload
 sudo systemctl enable floodguard
 sudo systemctl start floodguard
-
-# 查看服务状态
 sudo systemctl status floodguard
-
-# 运行测试
-go test ./...
 ```
 
-## 服务管理
+## Service Management
 
 ```bash
-# 启动服务
 sudo systemctl start floodguard
-
-# 停止服务
 sudo systemctl stop floodguard
-
-# 重启服务
 sudo systemctl restart floodguard
-
-# 查看状态
 sudo systemctl status floodguard
-
-# 查看日志
 sudo journalctl -u floodguard -f
-
-# 开机自启动
-sudo systemctl enable floodguard
-
-# 取消开机自启动
-sudo systemctl disable floodguard
 ```
 
 ## License
