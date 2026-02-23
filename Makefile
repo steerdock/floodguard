@@ -3,12 +3,14 @@
 BINARY_NAME=floodguard
 BUILD_DIR=build
 INSTALL_PATH=/usr/bin
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 
 build:
-	go build -o $(BUILD_DIR)/$(BINARY_NAME) cmd/floodguard/main.go
+	go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/floodguard
 
 build-linux:
-	GOOS=linux GOARCH=amd64 go build -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64 cmd/floodguard/main.go
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64 ./cmd/floodguard
 
 clean:
 	rm -rf $(BUILD_DIR)

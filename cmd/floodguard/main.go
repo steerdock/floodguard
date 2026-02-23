@@ -15,6 +15,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// version is set at build time via -ldflags "-X main.version=x.y.z".
+var version = "v1.0.3"
+
 var (
 	cfgFile string
 	logger  *zap.Logger
@@ -36,9 +39,10 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "floodguard",
-	Short: "A lightweight firewall tool to protect against CC and DDoS attacks",
-	Long:  `FloodGuard monitors network connections and automatically blocks malicious IPs.`,
+	Use:     "floodguard",
+	Version: version,
+	Short:   "A lightweight firewall tool to protect against CC and DDoS attacks",
+	Long:    `FloodGuard monitors network connections and automatically blocks malicious IPs.`,
 }
 
 var startCmd = &cobra.Command{
