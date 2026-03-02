@@ -14,6 +14,7 @@ import (
 	"github.com/yourusername/floodguard/internal/config"
 	"github.com/yourusername/floodguard/internal/detector"
 	"github.com/yourusername/floodguard/internal/firewall"
+	"github.com/yourusername/floodguard/internal/notifier"
 	"go.uber.org/zap"
 )
 
@@ -22,24 +23,30 @@ type Monitor struct {
 	logger   *zap.Logger
 	detector *detector.Detector
 	firewall firewall.Firewall
+	notifier notifier.Notifier
 	stopChan chan struct{}
 }
 
 func New(cfg *config.Config, logger *zap.Logger) *Monitor {
 	fw := firewall.NewAuto(logger)
 	det := detector.New(cfg, logger)
+	ntf := notifier.New(cfg.Notification, logger)
 
 	return &Monitor{
 		config:   cfg,
 		logger:   logger,
 		detector: det,
 		firewall: fw,
+		notifier: ntf,
 		stopChan: make(chan struct{}),
 	}
 }
 
 func (m *Monitor) Start() error {
 	m.logger.Info("Starting FloodGuard protection")
+
+	// Apply blacklist immediately on startup
+	m.applyBlacklist()
 
 	interval, err := time.ParseDuration(m.config.Monitor.Interval)
 	if err != nil {
@@ -97,10 +104,17 @@ func (m *Monitor) check() error {
 	for _, ip := range maliciousIPs {
 		if m.isWhitelisted(ip) {
 			whitelistedCount++
-			m.logger.Info("IP is whitelisted, skipping", 
+			m.logger.Info("IP is whitelisted, skipping",
 				zap.String("ip", ip),
 				zap.Int("connections", connections[ip]))
 			continue
+		}
+
+		// Log explicitly if the IP is also in the blacklist
+		if m.isBlacklisted(ip) {
+			m.logger.Warn("Blocking blacklisted IP",
+				zap.String("ip", ip),
+				zap.Int("connections", connections[ip]))
 		}
 
 		m.logger.Warn("Blocking malicious IP", 
@@ -109,13 +123,15 @@ func (m *Monitor) check() error {
 		
 		if err := m.firewall.Block(ip); err != nil {
 			failedCount++
-			m.logger.Error("Failed to block IP", 
-				zap.String("ip", ip), 
+			m.logger.Error("Failed to block IP",
+				zap.String("ip", ip),
 				zap.Error(err),
 				zap.String("error_type", "firewall_block_failed"))
 		} else {
 			blockedCount++
 			m.logger.Info("Successfully blocked IP", zap.String("ip", ip))
+			// Send webhook notification after each successful block
+			m.notifier.Send(ip, connections[ip])
 		}
 	}
 
@@ -255,13 +271,55 @@ func (m *Monitor) hexToIPv6(hex string) string {
 	return ipv6.String()
 }
 
+// applyBlacklist blocks all IPs listed in the blacklist config at startup.
+func (m *Monitor) applyBlacklist() {
+	if len(m.config.Blacklist) == 0 {
+		return
+	}
+	m.logger.Info("Applying blacklist", zap.Int("count", len(m.config.Blacklist)))
+	for _, ip := range m.config.Blacklist {
+		ip = strings.TrimSpace(ip)
+		if ip == "" {
+			continue
+		}
+		if err := m.firewall.Block(ip); err != nil {
+			m.logger.Error("Failed to block blacklisted IP",
+				zap.String("ip", ip),
+				zap.Error(err))
+		} else {
+			m.logger.Info("Blocked blacklisted IP", zap.String("ip", ip))
+		}
+	}
+}
+
+// isBlacklisted reports whether ip appears in the configured blacklist.
+func (m *Monitor) isBlacklisted(ip string) bool {
+	clientIP := net.ParseIP(ip)
+	if clientIP == nil {
+		return false
+	}
+	for _, entry := range m.config.Blacklist {
+		if strings.Contains(entry, "/") {
+			if m.isIPInCIDR(clientIP, entry) {
+				return true
+			}
+		} else {
+			blackIP := net.ParseIP(entry)
+			if blackIP != nil && clientIP.Equal(blackIP) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (m *Monitor) isWhitelisted(ip string) bool {
 	clientIP := net.ParseIP(ip)
 	if clientIP == nil {
 		m.logger.Warn("Invalid IP address format", zap.String("ip", ip))
 		return false
 	}
-	
+
 	for _, whiteEntry := range m.config.Whitelist {
 		// Check if it's a CIDR notation
 		if strings.Contains(whiteEntry, "/") {

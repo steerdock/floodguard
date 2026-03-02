@@ -31,4 +31,6 @@ Thumbs.db
 # Logs
 *.log
 
+# mgit-push 本地配置
 install.txt
+.mgit-push.json

@@ -1,6 +1,6 @@
 # FloodGuard
 
-[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md)
+[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md) | [변경 로그](CHANGELOG.md)
 
 CC 공격 및 DDoS 공격을 방어하기 위한 현대적이고 가벼운 Linux 방화벽 도구입니다.
 
@@ -141,6 +141,10 @@ sudo systemctl restart floodguard
 sudo systemctl status floodguard
 sudo journalctl -u floodguard -f
 ```
+
+## 변경 로그
+
+전체 릴리스 기록은 [CHANGELOG.md](CHANGELOG.md)를 참조하세요.
 
 ## 라이선스
 

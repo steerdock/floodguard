@@ -1,6 +1,6 @@
 # FloodGuard
 
-[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md)
+[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md) | [更新日志](CHANGELOG.md)
 
 一个现代化的轻量级 Linux 防火墙工具，用于防御 CC 攻击和 DDoS 攻击。
 
@@ -141,6 +141,10 @@ sudo systemctl restart floodguard
 sudo systemctl status floodguard
 sudo journalctl -u floodguard -f
 ```
+
+## 更新日志
+
+完整的版本变更记录请查看 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 许可证
 

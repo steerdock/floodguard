@@ -1,6 +1,6 @@
 # FloodGuard
 
-[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md)
+[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md) | [Changelog](CHANGELOG.md)
 
 Ein modernes, leichtgewichtiges Linux-Firewall-Tool zum Schutz vor CC-Angriffen und DDoS-Angriffen.
 
@@ -141,6 +141,10 @@ sudo systemctl restart floodguard
 sudo systemctl status floodguard
 sudo journalctl -u floodguard -f
 ```
+
+## Changelog
+
+Die vollständige Versionshistorie finden Sie in [CHANGELOG.md](CHANGELOG.md).
 
 ## Lizenz
 

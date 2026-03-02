@@ -1,6 +1,6 @@
 # FloodGuard
 
-[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md)
+[English](README.md) | [简体中文](README_CN.md) | [日本語](README_JA.md) | [한국어](README_KO.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Русский](README_RU.md) | [更新履歴](CHANGELOG.md)
 
 CC 攻撃および DDoS 攻撃から保護するための、モダンで軽量な Linux ファイアウォールツールです。
 
@@ -141,6 +141,10 @@ sudo systemctl restart floodguard
 sudo systemctl status floodguard
 sudo journalctl -u floodguard -f
 ```
+
+## 更新履歴
+
+完全なリリース履歴は [CHANGELOG.md](CHANGELOG.md) をご覧ください。
 
 ## ライセンス
 
